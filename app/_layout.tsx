@@ -1,29 +1,29 @@
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
-
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { PaperProvider } from "react-native-paper";
 import { NotificationProvider } from "@/context/notification";
+import useUserStore from "@/state/user";
+import { validateSignIn } from "@/utils/validateSignIn";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const { username } = useUserStore();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-      router.replace("/(public)");
+    if (!loaded) {
+      return;
     }
+    SplashScreen.hideAsync();
+    validateSignIn(username, router);
   }, [loaded]);
 
   if (!loaded) {
